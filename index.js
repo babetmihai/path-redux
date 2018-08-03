@@ -1,12 +1,19 @@
 
 const objectOrArray = (obj, isArray) => {
   if (isArray) {
-    return [...Object.entries(obj).reduce((acc, [index, value]) => {
-      acc[parseInt(index)] = value
-      return acc
-    }, [])]
+    return [
+      ...Object.entries(obj).reduce((acc, [index, value]) => {
+        acc[parseInt(index)] = value
+        return acc
+      }, [])
+    ]
   } else {
-    return Object.entries(obj).reduce((acc, [key, value]) => value ? ({ ...acc, [key]: value }) : acc, { })
+    return {
+      ...Object.entries(obj).reduce((acc, [key, value]) => ((value !== undefined) 
+        ? ({ ...acc, [key]: value }) 
+        : acc
+      ), {})
+    }
   }
 }
 
