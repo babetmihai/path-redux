@@ -1,4 +1,3 @@
-
 const objectOrArray = (obj, isArray) => {
   if (isArray) {
     return [
@@ -17,15 +16,8 @@ const objectOrArray = (obj, isArray) => {
   }
 }
 
-const initState = (state, key) => {
-  switch (true) {
-    case (!!state): return state
-    case (!isNaN(key)): return []
-    default: return {}
-  }
-}
 
-export const pathSelector = (state = {}, type = '') => {
+const pathSelector = (state = {}, type = '') => {
   const keys = type.split('/').filter(Boolean)
   switch (true) {
     case (keys.length === 0): return state
@@ -34,25 +26,30 @@ export const pathSelector = (state = {}, type = '') => {
   }
 }
 
-export const pathReducer = (state, { type = '', payload }) => {
+const pathReducer = (state = {}, { type = '', payload }) => {
   const keys = type.split('/').filter(Boolean)
   const key = keys[0]
-  const newState = initState(state, key)
   switch (true) {
     case (keys.length === 0): return payload
     case (keys.length === 1): return objectOrArray({
-      ...newState,
+      ...state,
       [key]: payload
-    }, newState instanceof Array)
+    }, state instanceof Array)
     default: return objectOrArray({
-      ...newState,
-      [key]: pathReducer(newState[key], {
+      ...state,
+      [key]: pathReducer(state[key], {
         payload,
         type: keys.slice(1).join('/')
       })
-    }, newState instanceof Array)
+    }, state instanceof Array)
   }
 }
 
 // test
-console.log(pathReducer({}, { type: 'home/0/test/1', payload: { test: 'test' }}).home[0].test)
+console.log(pathReducer(
+  { home: [] }, 
+  { 
+    type: 'home/0', 
+    payload: { test: 'test' }
+  }
+))
