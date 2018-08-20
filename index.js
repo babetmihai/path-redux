@@ -1,23 +1,7 @@
-const objectOrArray = (obj, isArray) => {
-  if (isArray) {
-    return [
-      ...Object.entries(obj).reduce((acc, [index, value]) => {
-        acc[parseInt(index)] = value
-        return acc
-      }, [])
-    ]
-  } else {
-    return {
-      ...Object.entries(obj).reduce((acc, [key, value]) => ((value !== undefined) 
-        ? ({ ...acc, [key]: value }) 
-        : acc
-      ), {})
-    }
-  }
-}
+import omitBy from 'lodash/omitBy'
+import isNil from 'lodash/isNil'
 
-
-const pathSelector = (state = {}, type = '') => {
+export const pathSelector = (state = {}, type = '') => {
   const keys = type.split('/').filter(Boolean)
   switch (true) {
     case (keys.length === 0): return state
@@ -26,30 +10,51 @@ const pathSelector = (state = {}, type = '') => {
   }
 }
 
-const pathReducer = (state = {}, { type = '', payload }) => {
+export const pathReducer = (state = {}, { type = '', payload }) => {
   const keys = type.split('/').filter(Boolean)
-  const key = keys[0]
   switch (true) {
     case (keys.length === 0): return payload
-    case (keys.length === 1): return objectOrArray({
+    case (keys.length === 1): return omitBy({
       ...state,
-      [key]: payload
-    }, state instanceof Array)
-    default: return objectOrArray({
+      [keys[0]]: payload
+    }, isNil)
+    default: return {
       ...state,
-      [key]: pathReducer(state[key], {
+      [keys[0]]: pathReducer(state[keys[0]], {
         payload,
         type: keys.slice(1).join('/')
       })
-    }, state instanceof Array)
+    }
   }
 }
 
-// test
-console.log(pathReducer(
-  { home: [] }, 
-  { 
-    type: 'home/0', 
-    payload: { test: 'test' }
-  }
-))
+export const storeApi = (store) => ({
+  get: (type, defautValue) => {
+    const value = pathSelector(store.getState(), type)
+    if (value === undefined) {
+      return defautValue
+    } else {
+      return value
+    }
+  },
+  set: (type, payload) => new Promise((resolve) => {
+    store.dispatch({ type, payload })
+    return resolve(payload)
+  }),
+  delete: (type) => new Promise((resolve) => {
+    store.dispatch({ type })
+    return resolve()
+  }),
+  update: (type, payload) => new Promise((resolve) => {
+    const value = pathSelector(store.getState(), type)
+    if (
+      typeof value === 'object' &&
+      typeof payload === 'object'
+    ) {
+      store.dispatch({ type, payload: { ...value, ...payload } })
+    } else {
+      store.dispatch({ type, payload })
+    }
+    return resolve(payload)
+  })
+})
