@@ -29,6 +29,7 @@ export const pathReducer = (state = {}, { type = '', payload }) => {
 }
 
 export const storeApi = (store) => ({
+  select: (selector) => selector(store.getState()),
   get: (type, defautValue) => {
     const value = pathSelector(store.getState(), type)
     if (value === undefined) {
