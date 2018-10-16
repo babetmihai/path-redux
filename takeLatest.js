@@ -1,3 +1,7 @@
+/** 
+ takes only the latest promise and rejects pending promises ()
+ https://github.com/bjoerge/promise-latest
+*/
 const takeLatest = (fn) => {
   let latestPromise
   let pending
