@@ -1,3 +1,10 @@
+/**
+ redux api that completely replaces reducers with object get and set functions
+ store.set('parent/child', 123) will result in state = { parent: { child: 123 } }
+ store.get('parent/child') will return a promise with the child value, 123
+ see also store.delete, store.update and store.select
+*/
+
 import omitBy from 'lodash/omitBy'
 import isNil from 'lodash/isNil'
 
