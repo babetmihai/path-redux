@@ -2,7 +2,8 @@
  takes only the last promise and rejects pending promises ()
  https://github.com/bjoerge/promise-latest
 */
-const debounce = (fn) => {
+
+const promiseDebounce = (fn) => {
   let lastReject
   return (...args) => new Promise((resolve, reject) => {
     if (lastReject) {
@@ -14,11 +15,9 @@ const debounce = (fn) => {
 }
 
 //test
-const delay = debounce((time) => new Promise(resolve => {
-  setTimeout(() => {
-    return resolve(time)
-  }, time)
-}))
+const consolePromise = promiseDebounce(
+  (time) => new Promise((resolve) => setTimeout(() => resolve(time), 0))
+)
 
-delay(100).then(console.log).catch((error) => console.log(error.message))
-delay(130).then(console.log)
+consolePromise('A').then(console.log).catch((error) => console.log(error.message))
+consolePromise('B').then(console.log)
