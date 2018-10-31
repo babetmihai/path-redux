@@ -1,8 +1,8 @@
 /**
  redux api that replaces reducers with object get and set functions (see lodash/get)
  
- store.set('parent.child', 123) will result in state = { parent: { child: 123 } }
- store.get('parent.child') will return a promise with the child value, 123
+ store.set('parent.child', 123) will return a promise and changhe the state = { parent: { child: 123 } }
+ store.get('parent.child') will return a the child value, 123
  see also store.delete, store.update and store.select
  
  does not work with arrays -> use a hashmap and Object.values() to represent lists
