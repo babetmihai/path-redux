@@ -13,7 +13,7 @@ const latestWrapper = (fn) => {
       .then(resolve)
       .catch(reject)
       .finally(() => {
-        if (reject === lastReject) reject = undefined
+        if (reject === lastReject) lastReject = undefined
       })
   })
 }
