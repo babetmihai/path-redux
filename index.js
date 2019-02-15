@@ -1,23 +1,28 @@
-/** 
- takes only the last promise and rejects pending promises ()
- https://github.com/bjoerge/promise-latest
-*/
 
-const promiseDebounce = (fn) => {
+const latestWrapper = (fn) => {
   let lastReject
   return (...args) => new Promise((resolve, reject) => {
     if (lastReject) {
-      lastReject(new Error('debounced'))
+      const error = new Error()
+      error.canceled = true
+      lastReject(error)
     }
+
     lastReject = reject
-    fn(...args).then(resolve).catch(reject)
+    fn(...args)
+      .then(resolve)
+      .catch(reject)
+      .finally(() => {
+        if (reject === lastReject) reject = undefined
+      })
   })
 }
 
 //test
-const consolePromise = promiseDebounce(
+const consolePromise = latestWrapper(
   (time) => new Promise((resolve) => setTimeout(() => resolve(time), 0))
 )
 
-consolePromise('A').then(console.log).catch((error) => console.log(error.message))
-consolePromise('B').then(console.log)
+consolePromise('A').then(console.log).catch((error) => console.log(error.canceled))
+consolePromise('2').then(console.log).catch((error) => console.log(error))
+consolePromise('1').then(console.log)
